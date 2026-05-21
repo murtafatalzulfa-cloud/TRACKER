@@ -1,0 +1,1126 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Project & Material Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons for modern, sharp UI symbols -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        },
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b',
+                        darkBorder: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 font-sans min-h-screen selection:bg-brand-500 selection:text-white pb-12">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-30 bg-darkCard/90 backdrop-blur-md border-b border-darkBorder px-4 py-4 md:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <!-- Brand Identity -->
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-lg shadow-brand-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-cubes text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                        Project Tracker <span class="text-brand-500 text-xs font-semibold px-2.5 py-0.5 bg-brand-500/10 rounded-full border border-brand-500/25">OMR</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Multi-Entity General Ledger & Procurement</p>
+                </div>
+            </div>
+
+            <!-- Global Switchers -->
+            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+                <div class="flex items-center bg-slate-900 border border-darkBorder rounded-xl px-3 py-1.5 w-full sm:w-auto">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-2">Company Workspace:</span>
+                    <select id="company-switcher" class="bg-transparent text-white font-bold focus:outline-none cursor-pointer text-sm">
+                        <option value="maz" class="bg-darkCard text-white">MAZ</option>
+                        <option value="ashac" class="bg-darkCard text-white">ASHAC</option>
+                        <option value="arkan" class="bg-darkCard text-white">ARKAN</option>
+                    </select>
+                </div>
+
+                <!-- Database Status Indicator -->
+                <div id="sync-status" class="flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 text-xs text-amber-400 font-medium animate-pulse">
+                    <i class="fa-solid fa-circle-nodes"></i>
+                    <span>Connecting Sync...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 md:px-8 mt-6">
+
+        <!-- Metrics Dashboard Summary -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <!-- Metric 1: Quoted Contractual Sum -->
+            <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 relative overflow-hidden group hover:border-slate-700 transition-all duration-300 shadow-xl">
+                <div class="absolute -right-4 -bottom-4 text-slate-800 text-7xl font-bold opacity-10 select-none">OMR</div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Total Quoted Value</p>
+                        <h3 id="stat-quoted" class="text-3xl font-black text-white mt-2 tracking-tight">0.000 OMR</h3>
+                    </div>
+                    <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500">
+                    <span>Sum of registered projects contract pricing</span>
+                </div>
+            </div>
+
+            <!-- Metric 2: Calculated Overalls -->
+            <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 relative overflow-hidden group hover:border-slate-700 transition-all duration-300 shadow-xl">
+                <div class="absolute -right-4 -bottom-4 text-slate-800 text-7xl font-bold opacity-10 select-none">OMR</div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Calculated Cost</p>
+                        <h3 id="stat-cost" class="text-3xl font-black text-rose-400 mt-2 tracking-tight">0.000 OMR</h3>
+                    </div>
+                    <div class="p-3 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500 justify-between">
+                    <span>Subcon + Materials + Labor + Overhead</span>
+                    <span class="text-[10px] text-slate-400 font-mono" id="stat-cost-breakdown">M:0 / L:0 / O:0</span>
+                </div>
+            </div>
+
+            <!-- Metric 3: Profit Margins -->
+            <div class="bg-darkCard border border-brand-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-brand-500/50 transition-all duration-300 shadow-xl bg-gradient-to-br from-darkCard to-brand-900/10">
+                <div class="absolute -right-4 -bottom-4 text-slate-800 text-7xl font-bold opacity-10 select-none">OMR</div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest text-brand-100">Expected Net Profit</p>
+                        <h3 id="stat-profit" class="text-3xl font-black text-emerald-400 mt-2 tracking-tight">0.000 OMR</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <i class="fa-solid fa-coins text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-400">
+                    <span class="text-emerald-400 font-semibold mr-1.5" id="stat-profit-percentage">0.0%</span>
+                    <span>average project profit margin</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Inventory Alerts Center -->
+        <section id="alerts-container" class="mb-8 hidden">
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+                <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-bold text-amber-200">System Inventory Notifications</h4>
+                    <ul id="alerts-list" class="text-xs text-slate-300 mt-1 space-y-1 list-disc pl-4">
+                        <!-- Alert items inject dynamically -->
+                    </ul>
+                </div>
+                <button onclick="dismissAlerts()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Interface Directories split -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Side (2/3 width) - Data Directories -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Project Directory Dashboard -->
+                <div class="bg-darkCard border border-darkBorder rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="px-6 py-5 border-b border-darkBorder flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-folder text-brand-500"></i> Projects Registry
+                            </h2>
+                            <p class="text-xs text-slate-400">Manage contractual costs, subcontractor scopes and performance timelines</p>
+                        </div>
+                        <button onclick="openProjectModal()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-brand-500/10 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> New Project
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Tables Frame -->
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900 border-b border-darkBorder text-slate-300 font-semibold">
+                                    <th class="py-4 px-6">Project Name & ID</th>
+                                    <th class="py-4 px-6">Subcontractors Listed</th>
+                                    <th class="py-4 px-6 text-right">Quoted Value</th>
+                                    <th class="py-4 px-6 text-right">Calculated Cost</th>
+                                    <th class="py-4 px-6 text-right">Expected Profit</th>
+                                    <th class="py-4 px-6 text-center">Progress</th>
+                                    <th class="py-4 px-6 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projects-table-body" class="divide-y divide-darkBorder/40">
+                                <!-- Dynamic project table lines go here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Clean Empty-State visual for Projects -->
+                    <div id="projects-empty-state" class="p-12 text-center flex flex-col items-center justify-center hidden">
+                        <div class="w-16 h-16 bg-slate-900 border border-darkBorder text-slate-500 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-diagram-project text-2xl"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-200">No Projects Registered Yet</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+                            Click on the "New Project" button above to add your first commercial layout for this company workspace.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Procurement & Materials Dashboard -->
+                <div class="bg-darkCard border border-darkBorder rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="px-6 py-5 border-b border-darkBorder flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-stacked text-brand-500"></i> Materials & Inventory Orders
+                            </h2>
+                            <p class="text-xs text-slate-400">Order tracking, logistics routing, and real-time alerts</p>
+                        </div>
+                        <button onclick="openMaterialModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-100 border border-darkBorder font-semibold text-xs px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i> Order Material
+                        </button>
+                    </div>
+
+                    <!-- Material list Frame -->
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900 border-b border-darkBorder text-slate-300 font-semibold">
+                                    <th class="py-4 px-6">Material Item & ID</th>
+                                    <th class="py-4 px-6">Assigned Project</th>
+                                    <th class="py-4 px-6 text-center">In Stock / Reorder Threshold</th>
+                                    <th class="py-4 px-6 text-right">Unit Price</th>
+                                    <th class="py-4 px-6 text-right">Total Cost</th>
+                                    <th class="py-4 px-6 text-center">Status</th>
+                                    <th class="py-4 px-6 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materials-table-body" class="divide-y divide-darkBorder/40">
+                                <!-- Dynamic material items go here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Clean Empty-State visual for Materials -->
+                    <div id="materials-empty-state" class="p-12 text-center flex flex-col items-center justify-center hidden">
+                        <div class="w-16 h-16 bg-slate-900 border border-darkBorder text-slate-500 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-truck-ramp-box text-2xl"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-200">No Materials Ordered Yet</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+                            Once you register a project, you can begin organizing supplier quotes and tracking delivery cycles.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side (1/3 width) - Statistics breakdown -->
+            <div class="space-y-8">
+                
+                <!-- Financial Cost Allocations Chart Card -->
+                <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-2xl">
+                    <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-brand-500"></i> Cost Allocation Breakdown (OMR)
+                    </h3>
+                    
+                    <div class="space-y-5">
+                        <!-- Subcontractors allocations -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Subcontractor Packages</span>
+                                <span id="percent-subcon" class="font-bold text-slate-200">0%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="progress-subcon-bar" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Materials allocations -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Direct Material Costing</span>
+                                <span id="percent-materials" class="font-bold text-slate-200">0%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="progress-materials-bar" class="h-full bg-brand-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Labor allocation -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Direct Labor Expense</span>
+                                <span id="percent-labor" class="font-bold text-slate-200">0%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="progress-labor-bar" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Overheads and Administrative allocation -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Overhead / Administration</span>
+                                <span id="percent-overhead" class="font-bold text-slate-200">0%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="progress-overhead-bar" class="h-full bg-rose-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Helper Guidelines -->
+                    <div class="mt-6 pt-5 border-t border-darkBorder/60">
+                        <h4 class="text-xs font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-slate-500"></i> Real-time Cloud Sync
+                        </h4>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Data updates and edits instantly reflect across all logged-in devices without lagging or reloading pages.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Multi-User Connection Board -->
+                <div class="bg-gradient-to-b from-brand-950/20 to-slate-900 border border-darkBorder rounded-2xl p-6">
+                    <h3 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-network-wired text-brand-500"></i> Active User Information
+                    </h3>
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <div class="flex justify-between border-b border-darkBorder/40 pb-1.5">
+                            <span class="text-slate-400">Device ID:</span>
+                            <span id="user-display-id" class="font-mono text-brand-300 select-all">Loading...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Status:</span>
+                            <span class="text-emerald-400 font-bold flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live & Synchronized
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal 1: Project Registration Form -->
+    <div id="project-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-darkCard border border-darkBorder rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden transform scale-95 transition-all max-h-[90vh] flex flex-col">
+            <div class="px-6 py-5 bg-slate-900 border-b border-darkBorder flex justify-between items-center shrink-0">
+                <h3 id="project-modal-title" class="font-bold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-brand-500"></i> Register New Project Profile
+                </h3>
+                <button onclick="closeProjectModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="project-form" onsubmit="saveProject(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
+                <!-- Hidden Project ID reference for edits -->
+                <input type="hidden" id="proj-edit-id" value="">
+
+                <!-- Title & General specs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Project Name *</label>
+                        <input type="text" id="proj-name" required placeholder="e.g., Al Mouj Villa 402" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Quoted Contract Value (OMR) *</label>
+                        <div class="relative">
+                            <input type="number" step="0.001" id="proj-quoted" required placeholder="0.000" class="w-full bg-slate-900 border border-darkBorder rounded-xl pl-3 pr-12 py-2 text-white text-sm font-mono focus:outline-none focus:border-brand-500">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-bold">OMR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subcontractors Multi-Allocation Module -->
+                <div class="bg-slate-900 p-4 rounded-2xl border border-darkBorder space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-[11px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="fa-solid fa-people-group"></i> Subcontractor Package Allocations
+                        </h4>
+                        <button type="button" onclick="addSubcontractorRow()" class="text-[11px] text-brand-400 hover:text-brand-300 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Add Row
+                        </button>
+                    </div>
+
+                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="subcontractor-rows-container">
+                        <!-- Subcontractor rows injected dynamically -->
+                    </div>
+                    <p class="text-[10px] text-slate-500 italic">Add multiple contractors with specific scopes (e.g., HVAC, plastering, plumbing) & package values.</p>
+                </div>
+
+                <!-- Inner Cost drivers breakdown structure -->
+                <div class="bg-slate-900 p-4 rounded-2xl border border-darkBorder space-y-3">
+                    <h4 class="text-[11px] font-bold text-slate-300 uppercase tracking-widest"><i class="fa-solid fa-calculator text-brand-500 mr-1.5"></i> Additional Expense Allocations</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Material Budget (OMR)</label>
+                            <input type="number" step="0.001" id="proj-mat-budget" placeholder="0.000" class="w-full bg-slate-950 border border-darkBorder rounded-xl px-2.5 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Direct Labor Budget (OMR)</label>
+                            <input type="number" step="0.001" id="proj-labor" placeholder="0.000" class="w-full bg-slate-950 border border-darkBorder rounded-xl px-2.5 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Overhead/Admin (OMR)</label>
+                            <input type="number" step="0.001" id="proj-overhead" placeholder="0.000" class="w-full bg-slate-950 border border-darkBorder rounded-xl px-2.5 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution status attributes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Progress Percentage (%)</label>
+                        <input type="number" id="proj-progress" min="0" max="100" placeholder="0" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Status</label>
+                        <select id="proj-status" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                            <option value="In Progress">In Progress</option>
+                            <option value="Near Completion">Near Completion</option>
+                            <option value="Finalizing">Finalizing</option>
+                            <option value="Planning">Planning</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Save trigger footer -->
+                <div class="pt-4 border-t border-darkBorder flex justify-end gap-3 shrink-0">
+                    <button type="button" onclick="closeProjectModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 px-4 rounded-xl transition-all">Cancel</button>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2 px-6 rounded-xl transition-all shadow-lg shadow-brand-500/20">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Material Order Registration -->
+    <div id="material-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-darkCard border border-darkBorder rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden transform scale-95 transition-all">
+            <div class="px-6 py-5 bg-slate-900 border-b border-darkBorder flex justify-between items-center">
+                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-brand-500"></i> Place New Material Order
+                </h3>
+                <button onclick="closeMaterialModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="material-form" onsubmit="saveMaterial(event)" class="p-6 space-y-4">
+                <!-- Item & Allocated Project -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Material Description *</label>
+                        <input type="text" id="mat-item" required placeholder="e.g., Concrete Rebars (Grade 40)" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Allocate to Project *</label>
+                        <select id="mat-project-id" required class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                            <!-- Dynamic project selectors go here -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stock tracking -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Current Stock Quantity *</label>
+                        <input type="number" id="mat-quantity" required placeholder="e.g., 50" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Low Stock Alert Threshold *</label>
+                        <input type="number" id="mat-threshold" required placeholder="Warn me if stock is below..." class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <!-- Prices -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Unit Cost (OMR) *</label>
+                        <div class="relative">
+                            <input type="number" step="0.001" id="mat-unit-cost" required placeholder="0.000" class="w-full bg-slate-900 border border-darkBorder rounded-xl pl-3 pr-12 py-2 text-white text-sm font-mono focus:outline-none focus:border-brand-500">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-bold">OMR</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Logistics & Delivery Status</label>
+                        <select id="mat-status" class="w-full bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                            <option value="Delivered">Delivered</option>
+                            <option value="Pending Logistics">Pending Logistics</option>
+                            <option value="Ordered">Ordered (In Transit)</option>
+                            <option value="Delayed Alert">Delayed Alert</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit material triggers -->
+                <div class="pt-4 border-t border-darkBorder flex justify-end gap-3">
+                    <button type="button" onclick="closeMaterialModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 px-4 rounded-xl transition-all">Cancel</button>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2 px-6 rounded-xl transition-all shadow-lg shadow-brand-500/20">Record Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Status / Toast notifications panel -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-slate-900 border border-brand-500 text-white font-semibold text-sm py-3.5 px-6 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <i class="fa-solid fa-bell text-brand-500"></i>
+        <span id="toast-text">System Workspace Updated</span>
+    </div>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'maz-project-portal';
+        const firebaseConfig = JSON.parse(__firebase_config);
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global app state
+        let currentCompany = "maz";
+        let projects = [];
+        let materials = [];
+        let currentUser = null;
+
+        // UI Cache
+        const syncStatus = document.getElementById("sync-status");
+        const userDisplayId = document.getElementById("user-display-id");
+        const companySwitcher = document.getElementById('company-switcher');
+        const projectsTableBody = document.getElementById('projects-table-body');
+        const materialsTableBody = document.getElementById('materials-table-body');
+        const matProjectSelect = document.getElementById('mat-project-id');
+
+        // Statistics elements
+        const statQuoted = document.getElementById('stat-quoted');
+        const statCost = document.getElementById('stat-cost');
+        const statProfit = document.getElementById('stat-profit');
+        const statProfitPercentage = document.getElementById('stat-profit-percentage');
+        const statCostBreakdown = document.getElementById('stat-cost-breakdown');
+
+        const barSubcon = document.getElementById('progress-subcon-bar');
+        const barMaterials = document.getElementById('progress-materials-bar');
+        const barLabor = document.getElementById('progress-labor-bar');
+        const barOverhead = document.getElementById('progress-overhead-bar');
+
+        const labelSubcon = document.getElementById('percent-subcon');
+        const labelMaterials = document.getElementById('percent-materials');
+        const labelLabor = document.getElementById('percent-labor');
+        const labelOverhead = document.getElementById('percent-overhead');
+
+        const projectsEmptyState = document.getElementById('projects-empty-state');
+        const materialsEmptyState = document.getElementById('materials-empty-state');
+        const alertsContainer = document.getElementById('alerts-container');
+        const alertsList = document.getElementById('alerts-list');
+
+        // Helpers
+        function formatOMR(val) {
+            return parseFloat(val || 0).toLocaleString('en-US', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+            }) + ' OMR';
+        }
+
+        function getSubcontractorsTotal(subcontractors) {
+            if (!subcontractors || !Array.isArray(subcontractors)) return 0;
+            return subcontractors.reduce((sum, sub) => sum + parseFloat(sub.price || 0), 0);
+        }
+
+        // Authentication Initialization
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth initiation failed: ", error);
+                syncStatus.className = "flex items-center gap-2 bg-rose-500/10 px-3 py-1.5 rounded-xl border border-rose-500/20 text-xs text-rose-400 font-medium";
+                syncStatus.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>Auth Error</span>`;
+            }
+        };
+
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                userDisplayId.textContent = user.uid;
+                syncStatus.className = "flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 text-xs text-emerald-400 font-medium";
+                syncStatus.innerHTML = `<i class="fa-solid fa-cloud-arrow-up animate-pulse"></i><span>Real-time Sync Active</span>`;
+                setupRealtimeListeners();
+            } else {
+                userDisplayId.textContent = "Offline";
+            }
+        });
+
+        // Setup Firestore Real-time Collections Listeners
+        let unsubscribeProjects = null;
+        let unsubscribeMaterials = null;
+
+        function setupRealtimeListeners() {
+            if (!currentUser) return;
+
+            // Unsubscribe existing listeners if any
+            if (unsubscribeProjects) unsubscribeProjects();
+            if (unsubscribeMaterials) unsubscribeMaterials();
+
+            // Strict paths aligned with RULE 1
+            const projectsCollectionPath = collection(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-projects`);
+            const materialsCollectionPath = collection(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-materials`);
+
+            // Listen to projects - updates instantaneously
+            unsubscribeProjects = onSnapshot(projectsCollectionPath, (snapshot) => {
+                projects = [];
+                snapshot.forEach(doc => {
+                    projects.push({ docId: doc.id, ...doc.data() });
+                });
+                renderDashboard();
+            }, (error) => {
+                console.error("Projects snapshot error: ", error);
+                showNotification("Sync error loading projects. Checking permissions...");
+            });
+
+            // Listen to materials - updates instantaneously
+            unsubscribeMaterials = onSnapshot(materialsCollectionPath, (snapshot) => {
+                materials = [];
+                snapshot.forEach(doc => {
+                    materials.push({ docId: doc.id, ...doc.data() });
+                });
+                renderDashboard();
+            }, (error) => {
+                console.error("Materials snapshot error: ", error);
+                showNotification("Sync error loading materials.");
+            });
+        }
+
+        // Redraw UI based on live Firestore data state
+        function renderDashboard() {
+            let totalQuoted = 0;
+            let totalCost = 0;
+
+            let totalSubconAlloc = 0;
+            let totalMaterialsAlloc = 0;
+            let totalLaborAlloc = 0;
+            let totalOverheadAlloc = 0;
+
+            // 1. Calculations
+            projects.forEach(p => {
+                totalQuoted += parseFloat(p.quotedValue || 0);
+                const aggregatedSubconCost = getSubcontractorsTotal(p.subcontractors);
+                const projectCost = 
+                    aggregatedSubconCost + 
+                    parseFloat(p.materialsBudget || 0) + 
+                    parseFloat(p.laborCost || 0) + 
+                    parseFloat(p.overheadCost || 0);
+
+                totalCost += projectCost;
+
+                totalSubconAlloc += aggregatedSubconCost;
+                totalMaterialsAlloc += parseFloat(p.materialsBudget || 0);
+                totalLaborAlloc += parseFloat(p.laborCost || 0);
+                totalOverheadAlloc += parseFloat(p.overheadCost || 0);
+            });
+
+            const totalExpectedProfit = totalQuoted - totalCost;
+            const profitPercent = totalQuoted > 0 ? ((totalExpectedProfit / totalQuoted) * 100).toFixed(1) : "0.0";
+
+            statQuoted.textContent = formatOMR(totalQuoted);
+            statCost.textContent = formatOMR(totalCost);
+            statProfit.textContent = formatOMR(totalExpectedProfit);
+            
+            if (totalExpectedProfit < 0) {
+                statProfit.className = "text-3xl font-black text-rose-500 mt-2 tracking-tight";
+            } else {
+                statProfit.className = "text-3xl font-black text-emerald-400 mt-2 tracking-tight";
+            }
+            statProfitPercentage.textContent = `${profitPercent}%`;
+            statCostBreakdown.textContent = `M: ${formatOMR(totalMaterialsAlloc)} | L: ${formatOMR(totalLaborAlloc)}`;
+
+            // Bars calculation
+            const totalAgg = (totalSubconAlloc + totalMaterialsAlloc + totalLaborAlloc + totalOverheadAlloc) || 1;
+            const subconP = ((totalSubconAlloc / totalAgg) * 100).toFixed(0);
+            const materialsP = ((totalMaterialsAlloc / totalAgg) * 100).toFixed(0);
+            const laborP = ((totalLaborAlloc / totalAgg) * 100).toFixed(0);
+            const overheadP = ((totalOverheadAlloc / totalAgg) * 100).toFixed(0);
+
+            barSubcon.style.width = `${totalSubconAlloc > 0 ? subconP : 0}%`;
+            barMaterials.style.width = `${totalMaterialsAlloc > 0 ? materialsP : 0}%`;
+            barLabor.style.width = `${totalLaborAlloc > 0 ? laborP : 0}%`;
+            barOverhead.style.width = `${totalOverheadAlloc > 0 ? overheadP : 0}%`;
+
+            labelSubcon.textContent = `${totalSubconAlloc > 0 ? subconP : 0}% (${formatOMR(totalSubconAlloc)})`;
+            labelMaterials.textContent = `${totalMaterialsAlloc > 0 ? materialsP : 0}% (${formatOMR(totalMaterialsAlloc)})`;
+            labelLabor.textContent = `${totalLaborAlloc > 0 ? laborP : 0}% (${formatOMR(totalLaborAlloc)})`;
+            labelOverhead.textContent = `${totalOverheadAlloc > 0 ? overheadP : 0}% (${formatOMR(totalOverheadAlloc)})`;
+
+            // 2. Render Projects List
+            projectsTableBody.innerHTML = '';
+            if (projects.length === 0) {
+                projectsEmptyState.classList.remove('hidden');
+            } else {
+                projectsEmptyState.classList.add('hidden');
+                projects.forEach(p => {
+                    const aggregatedSubconCost = getSubcontractorsTotal(p.subcontractors);
+                    const projectCost = aggregatedSubconCost + parseFloat(p.materialsBudget || 0) + parseFloat(p.laborCost || 0) + parseFloat(p.overheadCost || 0);
+                    const profit = parseFloat(p.quotedValue || 0) - projectCost;
+
+                    let subconDisplayHTML = "";
+                    if (!p.subcontractors || p.subcontractors.length === 0) {
+                        subconDisplayHTML = `<span class="text-xs text-slate-500 italic">None registered</span>`;
+                    } else {
+                        const subconNames = p.subcontractors.map(sub => sub.name);
+                        subconDisplayHTML = `
+                            <div class="flex flex-col gap-1">
+                                <div class="text-xs text-slate-200 font-semibold flex items-center gap-1">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> ${p.subcontractors.length} Subcontractors
+                                </div>
+                                <div class="text-[10px] text-slate-400 max-w-[200px] truncate" title="${subconNames.join(', ')}">
+                                    ${subconNames.join(', ')}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/30 transition-colors border-b border-darkBorder/40";
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-white text-sm">${p.name}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wide">ID: ${p.id}</div>
+                        </td>
+                        <td class="py-4 px-6">
+                            ${subconDisplayHTML}
+                        </td>
+                        <td class="py-4 px-6 text-right font-mono font-medium text-blue-300">${formatOMR(p.quotedValue)}</td>
+                        <td class="py-4 px-6 text-right font-mono text-slate-300">${formatOMR(projectCost)}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold ${profit < 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatOMR(profit)}</td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="w-16 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-brand-500 h-full rounded-full" style="width: ${p.progress}%"></div>
+                                </div>
+                                <span class="text-xs font-bold text-slate-200">${p.progress}%</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button data-id="${p.id}" class="btn-edit-project text-xs text-brand-400 hover:text-brand-300 bg-brand-500/10 p-2 rounded-xl border border-brand-500/20 hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <button data-id="${p.id}" class="btn-delete-project text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 p-2 rounded-xl border border-rose-500/20 hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    projectsTableBody.appendChild(tr);
+                });
+
+                // Attach Action Listeners securely
+                document.querySelectorAll('.btn-edit-project').forEach(btn => {
+                    btn.onclick = () => editProject(btn.getAttribute('data-id'));
+                });
+
+                document.querySelectorAll('.btn-delete-project').forEach(btn => {
+                    btn.onclick = () => deleteProject(btn.getAttribute('data-id'));
+                });
+            }
+
+            // 3. Render Materials List & Setup Warnings
+            materialsTableBody.innerHTML = '';
+            alertsList.innerHTML = '';
+            let systemWarningCount = 0;
+
+            if (materials.length === 0) {
+                materialsEmptyState.classList.remove('hidden');
+            } else {
+                materialsEmptyState.classList.add('hidden');
+                materials.forEach(m => {
+                    const targetProj = projects.find(p => p.id === m.projectId) || { name: 'Unassigned Project' };
+                    const totalCost = m.quantity * m.unitCost;
+
+                    const isLowStock = m.quantity <= m.threshold;
+                    const isDelayed = m.status === 'Delayed Alert';
+
+                    if (isLowStock) {
+                        systemWarningCount++;
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="font-bold text-rose-400">Low Stock Alert:</span> Material "${m.item}" assigned to "${targetProj.name}" has critical level <strong>${m.quantity}</strong> (Threshold limit: ${m.threshold}).`;
+                        alertsList.appendChild(li);
+                    }
+
+                    if (isDelayed) {
+                        systemWarningCount++;
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="font-bold text-amber-400">Logistics Flag:</span> Delivery for "${m.item}" in "${targetProj.name}" is delayed in transit.`;
+                        alertsList.appendChild(li);
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = `hover:bg-slate-800/30 transition-colors border-b border-darkBorder/40 ${isLowStock ? 'bg-rose-500/5' : ''}`;
+
+                    let badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                    if (m.status === 'Pending Logistics') badgeStyle = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                    if (m.status === 'Ordered') badgeStyle = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                    if (m.status === 'Delayed Alert') badgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/20 animated pulse";
+
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-white text-sm">${m.item}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wide">ID: ${m.id}</div>
+                        </td>
+                        <td class="py-4 px-6 text-xs text-slate-400">
+                            <div class="max-w-[150px] truncate text-slate-200 font-medium">${targetProj.name}</div>
+                        </td>
+                        <td class="py-4 px-6 text-center font-mono">
+                            <div class="text-xs text-slate-100 font-bold">${m.quantity} / ${m.threshold}</div>
+                            <div class="text-[10px] mt-0.5 ${isLowStock ? 'text-rose-400 font-bold' : 'text-slate-500'}">
+                                ${isLowStock ? '⚠️ REORDER MATERIAL' : '✓ Stock Healthy'}
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${formatOMR(m.unitCost)}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-emerald-400">${formatOMR(totalCost)}</td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border ${badgeStyle}">
+                                ${m.status}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <button data-id="${m.id}" class="btn-delete-material text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 p-2 rounded-xl border border-rose-500/20 hover:scale-105 transition-all">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    materialsTableBody.appendChild(tr);
+                });
+
+                // Attach delete click listeners securely
+                document.querySelectorAll('.btn-delete-material').forEach(btn => {
+                    btn.onclick = () => deleteMaterial(btn.getAttribute('data-id'));
+                });
+            }
+
+            if (systemWarningCount > 0) {
+                alertsContainer.classList.remove('hidden');
+            } else {
+                alertsContainer.classList.add('hidden');
+            }
+
+            populateProjectDropdowns();
+        }
+
+        function populateProjectDropdowns() {
+            matProjectSelect.innerHTML = '';
+            projects.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                opt.className = "bg-darkCard text-white";
+                matProjectSelect.appendChild(opt);
+            });
+        }
+
+        // Company workspace switch event
+        companySwitcher.onchange = (e) => {
+            currentCompany = e.target.value;
+            setupRealtimeListeners();
+            showNotification(`Switched database to Workspace: ${e.target.options[e.target.selectedIndex].text}`);
+        };
+
+        // Write or Update project profile in Firestore
+        window.saveProject = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const editId = document.getElementById('proj-edit-id').value;
+            const name = document.getElementById('proj-name').value;
+            const quotedValue = parseFloat(document.getElementById('proj-quoted').value || 0);
+            const materialsBudget = parseFloat(document.getElementById('proj-mat-budget').value || 0);
+            const laborCost = parseFloat(document.getElementById('proj-labor').value || 0);
+            const overheadCost = parseFloat(document.getElementById('proj-overhead').value || 0);
+            const progress = parseInt(document.getElementById('proj-progress').value || 0);
+            const status = document.getElementById('proj-status').value;
+
+            const subcontractorRows = document.querySelectorAll('#subcontractor-rows-container > div');
+            const subcontractors = [];
+
+            subcontractorRows.forEach(row => {
+                const subName = row.querySelector('.subcon-name').value.trim();
+                const subScope = row.querySelector('.subcon-scope').value.trim();
+                const subPrice = parseFloat(row.querySelector('.subcon-price').value || 0);
+
+                if (subName || subScope || subPrice > 0) {
+                    subcontractors.push({
+                        name: subName || "General Partner",
+                        scope: subScope || "Contracted Operations",
+                        price: subPrice
+                    });
+                }
+            });
+
+            // If editId is defined, keep same ID. Otherwise, generate a new project ID.
+            const projId = editId ? editId : `${currentCompany}-p-${Date.now().toString().slice(-4)}`;
+            
+            // Document write aligned to strict Paths RULE 1
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-projects`, projId);
+            
+            try {
+                await setDoc(docRef, {
+                    id: projId,
+                    name,
+                    subcontractors,
+                    quotedValue,
+                    materialsBudget,
+                    laborCost,
+                    overheadCost,
+                    progress,
+                    status,
+                    timestamp: Date.now()
+                });
+                closeProjectModal();
+                showNotification(editId ? `Updated project specifications for "${name}".` : `Registered "${name}" into the cloud.`);
+            } catch (err) {
+                console.error("Project save failed: ", err);
+                showNotification("Could not save to Cloud. Please try again.");
+            }
+        };
+
+        // Write new material order profile to cloud db
+        window.saveMaterial = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const item = document.getElementById('mat-item').value;
+            const projectId = document.getElementById('mat-project-id').value;
+            const quantity = parseInt(document.getElementById('mat-quantity').value || 0);
+            const threshold = parseInt(document.getElementById('mat-threshold').value || 0);
+            const unitCost = parseFloat(document.getElementById('mat-unit-cost').value || 0);
+            const status = document.getElementById('mat-status').value;
+
+            const matId = `${currentCompany}-m-${Date.now().toString().slice(-4)}`;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-materials`, matId);
+
+            try {
+                await setDoc(docRef, {
+                    id: matId,
+                    projectId,
+                    item,
+                    quantity,
+                    threshold,
+                    unitCost,
+                    status,
+                    timestamp: Date.now()
+                });
+                closeMaterialModal();
+                showNotification(`Material order for "${item}" synced.`);
+            } catch (err) {
+                console.error("Material save failed: ", err);
+                showNotification("Failed to sync material order.");
+            }
+        };
+
+        // Edit Action - Loads details back into the active form modal
+        window.editProject = function(id) {
+            const targetProj = projects.find(p => p.id === id);
+            if (!targetProj) return;
+
+            // Open modal and change title/button context
+            document.getElementById('project-modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-500"></i> Edit Project Specifications`;
+            document.getElementById('proj-edit-id').value = targetProj.id;
+            
+            // Populating fields
+            document.getElementById('proj-name').value = targetProj.name;
+            document.getElementById('proj-quoted').value = targetProj.quotedValue;
+            document.getElementById('proj-mat-budget').value = targetProj.materialsBudget;
+            document.getElementById('proj-labor').value = targetProj.laborCost;
+            document.getElementById('proj-overhead').value = targetProj.overheadCost;
+            document.getElementById('proj-progress').value = targetProj.progress;
+            document.getElementById('proj-status').value = targetProj.status;
+
+            // Subcontractor rows rendering
+            const container = document.getElementById('subcontractor-rows-container');
+            container.innerHTML = '';
+            
+            if (targetProj.subcontractors && targetProj.subcontractors.length > 0) {
+                targetProj.subcontractors.forEach(sub => {
+                    addSubcontractorRow(sub.name, sub.scope, sub.price);
+                });
+            } else {
+                addSubcontractorRow();
+            }
+
+            document.getElementById('project-modal').classList.remove('hidden');
+        };
+
+        // Delete handlers
+        window.deleteProject = async function(id) {
+            if (!currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-projects`, id);
+                await deleteDoc(docRef);
+
+                // Cascade deletion for materials referencing deleted project
+                materials.forEach(async (m) => {
+                    if (m.projectId === id) {
+                        const mDocRef = doc(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-materials`, m.id);
+                        await deleteDoc(mDocRef);
+                    }
+                });
+                showNotification("Removed project profile and cascaded elements.");
+            } catch (err) {
+                console.error("Failed to delete project: ", err);
+            }
+        };
+
+        window.deleteMaterial = async function(id) {
+            if (!currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', `${currentCompany}-materials`, id);
+                await deleteDoc(docRef);
+                showNotification("Material logistics log removed.");
+            } catch (err) {
+                console.error("Failed to delete material: ", err);
+            }
+        };
+
+        // Modals Controls
+        window.openProjectModal = function() {
+            document.getElementById('project-form').reset();
+            document.getElementById('proj-edit-id').value = ""; // Clear edit reference
+            document.getElementById('project-modal-title').innerHTML = `<i class="fa-solid fa-folder-plus text-brand-500"></i> Register New Project Profile`;
+            document.getElementById('subcontractor-rows-container').innerHTML = '';
+            addSubcontractorRow();
+            document.getElementById('project-modal').classList.remove('hidden');
+        };
+
+        window.closeProjectModal = function() {
+            document.getElementById('project-modal').classList.add('hidden');
+        };
+
+        window.openMaterialModal = function() {
+            document.getElementById('material-form').reset();
+            populateProjectDropdowns();
+            if (projects.length === 0) {
+                showNotification("Error: You must register at least one project before tracking materials!");
+                return;
+            }
+            document.getElementById('material-modal').classList.remove('hidden');
+        };
+
+        window.closeMaterialModal = function() {
+            document.getElementById('material-modal').classList.add('hidden');
+        };
+
+        // Subcontractor Dynamic Rows
+        window.addSubcontractorRow = function(name = "", scope = "", price = "") {
+            const container = document.getElementById('subcontractor-rows-container');
+            const rowId = `sub-row-${Date.now()}-${Math.floor(Math.random() * 105)}`;
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.id = rowId;
+            rowDiv.className = "grid grid-cols-1 md:grid-cols-3 gap-2 items-center bg-slate-950/40 p-2.5 rounded-xl border border-darkBorder/40";
+            
+            rowDiv.innerHTML = `
+                <div>
+                    <input type="text" placeholder="Subcontractor Name" value="${name}" class="subcon-name w-full bg-slate-900 border border-darkBorder rounded-lg px-2 py-1.5 text-white text-xs focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <input type="text" placeholder="Work Scope (e.g., HVAC, Plastering)" value="${scope}" class="subcon-scope w-full bg-slate-900 border border-darkBorder rounded-lg px-2 py-1.5 text-white text-xs focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <input type="number" step="0.001" placeholder="Price (OMR)" value="${price}" class="subcon-price w-full bg-slate-900 border border-darkBorder rounded-lg pl-2 pr-10 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-brand-500">
+                        <span class="absolute right-2 top-2 text-[9px] text-slate-500 font-bold">OMR</span>
+                    </div>
+                    <button type="button" onclick="removeSubcontractorRow('${rowId}')" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                        <i class="fa-solid fa-circle-minus"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(rowDiv);
+        };
+
+        window.removeSubcontractorRow = function(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        };
+
+        window.dismissAlerts = function() {
+            alertsContainer.classList.add('hidden');
+        };
+
+        function showNotification(msg) {
+            const toast = document.getElementById('toast-notification');
+            const toastText = document.getElementById('toast-text');
+            toastText.textContent = msg;
+            toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-brand-500 text-white font-semibold text-sm py-3.5 px-6 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50 animate-bounce";
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 bg-slate-900 border border-brand-500 text-white font-semibold text-sm py-3.5 px-6 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50";
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
+
+```
